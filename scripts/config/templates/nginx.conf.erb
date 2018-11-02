@@ -49,6 +49,7 @@ http {
   <% if proxies.any? %>
     resolver <%= resolver %>;
   <% end %>
+    rewrite ^/(.*)/$ /$1 permanent;
 
     location / {
       mruby_post_read_handler /app/bin/config/lib/ngx_mruby/headers.rb cache;
