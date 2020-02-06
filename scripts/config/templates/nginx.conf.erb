@@ -65,64 +65,71 @@ http {
     <% end %>
     }
 
-  <% if clean_urls %>
-    location ~ \.html$ {
-      try_files $uri =404;
-    }
-  <% end %>
-
-  <% if https_only %>
-    if ($http_x_forwarded_proto != "https") {
-      return 301 https://$host$request_uri;
-    }
-  <% end %>
-
-  <% routes.each do |route, path| %>
-    location ~ ^<%= route %>$ {
-      set $route <%= route %>;
-      mruby_set $path /app/bin/config/lib/ngx_mruby/routes_path.rb cache;
-      mruby_set $fallback /app/bin/config/lib/ngx_mruby/routes_fallback.rb cache;
     <% if clean_urls %>
-      try_files $uri.html $uri $uri/index.html $uri/ $path $fallback;
-    <% else %>
-      try_files $uri $path $fallback;
+      location ~ \.html$ {
+        try_files $uri =404;
+      }
     <% end %>
-    }
-  <% end %>
 
-  # need this b/c setting $fallback to =404 will try #{root}=404 instead of returning a 404
-  location @404 {
-    return 404;
-  }
+    <% if https_only %>
+      if ($http_x_forwarded_proto != "https") {
+        return 301 https://$host$request_uri;
+      }
+    <% end %>
 
-  # fallback proxy named match
-  <% proxies.each do |location, hash| %>
-    set $<%= hash['name'] %> <%= hash['host'] %>;
-    location @<%= location %> {
-      rewrite ^<%= location %>/?(.*)$ <%= hash['path'] %>/$1 break;
-      # can reuse variable set above
-      proxy_pass $<%= hash['name'] %>;
-      proxy_ssl_server_name on;
-      <% %w(http https).each do |scheme| %>
-      proxy_redirect <%= hash["redirect_#{scheme}"] %> <%= location %>;
+    <% routes.each do |route, path| %>
+      location ~ ^<%= route %>$ {
+        set $route <%= route %>;
+        mruby_set $path /app/bin/config/lib/ngx_mruby/routes_path.rb cache;
+        mruby_set $fallback /app/bin/config/lib/ngx_mruby/routes_fallback.rb cache;
+      <% if clean_urls %>
+        try_files $uri.html $uri $uri/index.html $uri/ $path $fallback;
+      <% else %>
+        try_files $uri $path $fallback;
       <% end %>
+      }
+    <% end %>
+
+    # need this b/c setting $fallback to =404 will try #{root}=404 instead of returning a 404
+    location @404 {
+      return 404;
     }
-  <% end %>
 
-  # fallback redirects named match
-  <% redirects.each do |path, hash| %>
-    location @<%= path %> {
-      return <%= hash['status'] || 301 %> <%= hash['url'] %>;
+    # fallback proxy named match
+    <% proxies.each do |location, hash| %>
+      set $<%= hash['name'] %> <%= hash['host'] %>;
+      location @<%= location %> {
+        rewrite ^<%= location %>/?(.*)$ <%= hash['path'] %>/$1 break;
+        # can reuse variable set above
+        proxy_pass $<%= hash['name'] %>;
+        proxy_ssl_server_name on;
+        <% %w(http https).each do |scheme| %>
+        proxy_redirect <%= hash["redirect_#{scheme}"] %> <%= location %>;
+        <% end %>
+      }
+    <% end %>
+
+    # fallback redirects named match
+    <% redirects.each do |path, hash| %>
+      location @<%= path %> {
+        return <%= hash['status'] || 301 %> <%= hash['url'] %>;
+      }
+    <% end %>
+
+     location ~ "/(.*)/(.*)/(schwarz|weiss|rot|benzin|diesel|kombi|cabriolet|kleinwagen|limousine|gold|blau|grau|silber|orange|braun|beige|coupesportwagen|gelaendewagen|van|fluessiggas-lpg|transporter|erdgas-cng|violett|gruen|gelb|elektro|benzinelektro|activehybrid-3|[0-9]{4})$" {
+       return 301 "https://www.pkw.de/autokatalog/$1/$2";
+     }
+
+    if ( $redirect_uri ) {
+        return 301 https://www.pkw.de$redirect_uri;
     }
-  <% end %>
 
-   location ~ "/(.*)/(.*)/(schwarz|weiss|rot|benzin|diesel|kombi|cabriolet|kleinwagen|limousine|gold|blau|grau|silber|orange|braun|beige|coupesportwagen|gelaendewagen|van|fluessiggas-lpg|transporter|erdgas-cng|violett|gruen|gelb|elektro|benzinelektro|activehybrid-3|[0-9]{4})$" {
-     return 301 "https://www.pkw.de/autokatalog/$1/$2";
-   }
-
-  if ( $redirect_uri ) {
-      return 301 https://www.pkw.de$redirect_uri;
-  }
-
+    location ~* ".(ico|css|js|gif|jpe?g|png|svg|woff2?|ttf|ijmap|eot)$" {
+      expires 30d;
+      access_log off;
+      add_header Pragma public;
+      add_header Cache-Control "public";
+      break;
+    }
   }
 }
