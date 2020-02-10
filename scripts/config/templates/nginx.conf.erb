@@ -124,7 +124,7 @@ http {
         return 301 https://www.pkw.de$redirect_uri;
     }
 
-    location ~* ".(ico|css|js|gif|jpe?g|png|svg|woff2?|ttf|ijmap|eot)$" {
+    location ~* ".(ico|css|js|gif|jpe?g|png|svg|woff)$" {
       expires 30d;
       access_log off;
       add_header Pragma public;
