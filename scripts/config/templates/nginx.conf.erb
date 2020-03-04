@@ -116,7 +116,7 @@ http {
       }
     <% end %>
 
-     location ~ "/(.*)/(.*)/(schwarz|weiss|rot|benzin|diesel|kombi|cabriolet|kleinwagen|limousine|gold|blau|grau|silber|orange|braun|beige|coupesportwagen|gelaendewagen|van|fluessiggas-lpg|transporter|erdgas-cng|violett|gruen|gelb|elektro|benzinelektro|activehybrid-3|[0-9]{4})$" {
+     location ~ "/(.*)/(.*)/(schwarz|weiss|rot|benzin|diesel|gold|blau|grau|silber|orange|braun|beige|fluessiggas-lpg|erdgas-cng|violett|gruen|gelb|elektro|benzinelektro|activehybrid-3|gebraucht|cc-gebraucht|sw-gebraucht|avant-gebraucht|cabriolet-gebraucht|sportback-gebraucht|gti-gebraucht|5-gebraucht|6-gebraucht|t4-gebraucht|t5-gebraucht|bus-gebraucht|cabrio-gebraucht|[0-9]{4})$" {
        return 301 "https://www.pkw.de/autokatalog/$1/$2";
      }
 
