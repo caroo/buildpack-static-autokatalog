@@ -11,7 +11,6 @@ http {
   gzip on;
   gzip_comp_level 6;
   gzip_min_length 512;
-  map_hash_bucket_size 128;
   gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
   gzip_vary on;
   gzip_proxied any;
@@ -32,7 +31,6 @@ http {
 <% end %>
 
   include mime.types;
-  include redirect-map.conf;
   default_type application/octet-stream;
   sendfile on;
 
@@ -133,10 +131,6 @@ http {
         }
       <% end %>
     <% end %>
-
-    if ( $redirect_uri ) {
-        return 301 https://www.pkw.de$redirect_uri;
-    }
 
     location ~* "\.(ico|css|js|gif|jpe?g|png|svg|webp|woff2?|ttf|ijmap|eot)$" {
       expires 30d;
