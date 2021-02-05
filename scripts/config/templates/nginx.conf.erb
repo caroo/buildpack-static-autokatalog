@@ -123,9 +123,15 @@ http {
 
     # fallback redirects named match
     <% redirects.each do |path, hash| %>
-      location @<%= path %> {
-        return <%= hash['status'] || 301 %> <%= hash['url'] %>;
-      }
+      <% if hash['raw'] %>
+        location <%= path %> {
+          return <%= hash['status'] || 301 %> <%= hash['url'] %>;
+        }
+      <% else %>
+        location @<%= path %> {
+          return <%= hash['status'] || 301 %> <%= hash['url'] %>;
+        }
+      <% end %>
     <% end %>
 
      location ~ "/(.*)/(.*)/(schwarz|weiss|rot|benzin|diesel|gold|blau|grau|silber|orange|braun|beige|fluessiggas-lpg|erdgas-cng|violett|gruen|gelb|elektro|benzinelektro|activehybrid-3|gebraucht|cc-gebraucht|sw-gebraucht|avant-gebraucht|cabriolet-gebraucht|sportback-gebraucht|gti-gebraucht|5-gebraucht|6-gebraucht|t4-gebraucht|t5-gebraucht|bus-gebraucht|cabrio-gebraucht|[0-9]{4})$" {
