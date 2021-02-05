@@ -134,10 +134,6 @@ http {
       <% end %>
     <% end %>
 
-     location ~ "/(.*)/(.*)/(schwarz|weiss|rot|benzin|diesel|gold|blau|grau|silber|orange|braun|beige|fluessiggas-lpg|erdgas-cng|violett|gruen|gelb|elektro|benzinelektro|activehybrid-3|gebraucht|cc-gebraucht|sw-gebraucht|avant-gebraucht|cabriolet-gebraucht|sportback-gebraucht|gti-gebraucht|5-gebraucht|6-gebraucht|t4-gebraucht|t5-gebraucht|bus-gebraucht|cabrio-gebraucht|[0-9]{4})$" {
-       return 301 "https://www.pkw.de/autokatalog/$1/$2";
-     }
-
     if ( $redirect_uri ) {
         return 301 https://www.pkw.de$redirect_uri;
     }
