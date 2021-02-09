@@ -11,7 +11,6 @@ http {
   gzip on;
   gzip_comp_level 6;
   gzip_min_length 512;
-  map_hash_bucket_size 128;
   gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
   gzip_vary on;
   gzip_proxied any;
@@ -32,7 +31,6 @@ http {
 <% end %>
 
   include mime.types;
-  include redirect-map.conf;
   default_type application/octet-stream;
   sendfile on;
 
@@ -123,18 +121,16 @@ http {
 
     # fallback redirects named match
     <% redirects.each do |path, hash| %>
-      location @<%= path %> {
-        return <%= hash['status'] || 301 %> <%= hash['url'] %>;
-      }
+      <% if hash['raw'] %>
+        location <%= path %> {
+          return <%= hash['status'] || 301 %> <%= hash['url'] %>;
+        }
+      <% else %>
+        location @<%= path %> {
+          return <%= hash['status'] || 301 %> <%= hash['url'] %>;
+        }
+      <% end %>
     <% end %>
-
-     location ~ "/(.*)/(.*)/(schwarz|weiss|rot|benzin|diesel|gold|blau|grau|silber|orange|braun|beige|fluessiggas-lpg|erdgas-cng|violett|gruen|gelb|elektro|benzinelektro|activehybrid-3|gebraucht|cc-gebraucht|sw-gebraucht|avant-gebraucht|cabriolet-gebraucht|sportback-gebraucht|gti-gebraucht|5-gebraucht|6-gebraucht|t4-gebraucht|t5-gebraucht|bus-gebraucht|cabrio-gebraucht|[0-9]{4})$" {
-       return 301 "https://www.pkw.de/autokatalog/$1/$2";
-     }
-
-    if ( $redirect_uri ) {
-        return 301 https://www.pkw.de$redirect_uri;
-    }
 
     location ~* "\.(ico|css|js|gif|jpe?g|png|svg|webp|woff2?|ttf|ijmap|eot)$" {
       expires 30d;
