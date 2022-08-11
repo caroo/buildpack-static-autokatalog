@@ -44,7 +44,7 @@ http {
     keepalive_timeout 5;
     root <%= root %>;
   <% if error_page %>
-    error_page 404 500 /<%= error_page %>;
+    error_page 404 410 500 /<%= error_page %>;
   <% end %>
   <% if proxies.any? %>
     resolver <%= resolver %>;
@@ -130,6 +130,12 @@ http {
           return <%= hash['status'] || 301 %> <%= hash['url'] %>;
         }
       <% end %>
+    <% end %>
+
+    <% deleted.each do |path, hash| %>
+      location ~* (*UTF8)^<%=path %>$ {
+        return <%= hash['status'] || 410 %>;
+      }
     <% end %>
 
     location ~* "\.(ico|css|js|gif|jpe?g|png|svg|webp|woff2?|ttf|ijmap|eot)$" {
